@@ -36,4 +36,8 @@ public class GrayScaleFilter extends Filter
             }
         }
     }
+    
+    public OFImage applyReturn(OFImage image){
+    return image;
+    }
 }

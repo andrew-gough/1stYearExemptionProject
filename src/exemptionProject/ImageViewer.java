@@ -58,20 +58,20 @@ public class ImageViewer implements WindowListener
 	}
 
 	// ---- added functions for exemptionProj ----
-	
+
 	/**
 	 * Refresh Function - Closes the current file and opens a new instance of the file
 	 * Clearing all undos and redos
 	 */
-	
+
 	private void refresh(){
 		int selectedValue =JOptionPane.showConfirmDialog(null, "Do you wish to save before refreshing? \n(Refreshing clears all changes)", "Do you wish to save?", 
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-				
+
 		if (selectedValue == JOptionPane.CANCEL_OPTION){
 			return;
 		}
-		
+
 		if (selectedValue == JOptionPane.YES_OPTION){
 			if (saveAs() == false){
 				JOptionPane.showMessageDialog(null,"Save failed for some reason /n Refresh Failed");
@@ -127,7 +127,7 @@ public class ImageViewer implements WindowListener
 	/*
 	 * Clears Undo ArrayList
 	 */
-	
+
 	private void resetUndo(){
 		undoFunction.clear();
 	}
@@ -156,7 +156,7 @@ public class ImageViewer implements WindowListener
 			return false;
 		}
 	}
-	
+
 	private void resetRedo(){
 		redoFunction.clear();
 	}
@@ -241,6 +241,9 @@ public class ImageViewer implements WindowListener
 		resetRedo();
 		addUndo(OFImage.getCopy(currentImage));
 		if(currentImage != null) {
+			if (filter.getName() == "Rotate Image"){
+				currentImage = filter.applyReturn(currentImage);
+			}
 			filter.apply(currentImage);
 			imagePanel.setImage(currentImage);
 			frame.repaint();
@@ -249,7 +252,7 @@ public class ImageViewer implements WindowListener
 		else {
 			showStatus("No image loaded.");
 		}
-}
+	}
 
 	/**
 	 * 'About' function: show the 'about' box.
@@ -378,6 +381,7 @@ public class ImageViewer implements WindowListener
 		filterList.add(new GrayScaleFilter("Grayscale"));
 		filterList.add(new EdgeFilter("Edge Detection"));
 		filterList.add(new FishEyeFilter("Fish Eye"));
+		filterList.add(new RotationalFilter("Rotate Image", "clockwise"));
 
 		return filterList;
 	}
@@ -477,7 +481,7 @@ public class ImageViewer implements WindowListener
 		});
 		menu.add(item);
 		menu.addSeparator();
-		
+
 		item = new JMenuItem("Refresh");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK));
 		item.addActionListener(new ActionListener() {
@@ -545,44 +549,44 @@ public class ImageViewer implements WindowListener
 	@Override
 	public void windowActivated(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowClosed(WindowEvent arg0) {
 		frame.dispose();
 		System.exit(0);
-		
+
 	}
 
 	@Override
 	public void windowClosing(WindowEvent arg0) {
 		frame.dispose();
 		System.exit(0);
-		
+
 	}
 
 	@Override
 	public void windowDeactivated(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowDeiconified(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowIconified(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowOpened(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

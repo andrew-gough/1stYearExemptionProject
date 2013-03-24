@@ -72,4 +72,8 @@ public class FishEyeFilter extends Filter
         }
         return yArray;
     }
+    
+    public OFImage applyReturn(OFImage image){
+    return image;
+    }
 }

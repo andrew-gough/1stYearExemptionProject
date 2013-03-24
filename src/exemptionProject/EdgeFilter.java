@@ -141,5 +141,9 @@ public class EdgeFilter extends Filter
         }
         return difference;
     }
+    
+    public OFImage applyReturn(OFImage image){
+    return image;
+    }
 
 }

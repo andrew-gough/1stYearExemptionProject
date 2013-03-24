@@ -31,6 +31,10 @@ public class OFImage extends BufferedImage
         super(width, height, TYPE_INT_RGB);
     }
 
+    public OFImage(int width, int height, int type)
+    {
+        super(width, height, type);
+    }
     /**
      * Set a given pixel of this image to a specified color. The
      * color is represented as an (r,g,b) value.

@@ -37,4 +37,9 @@ public abstract class Filter
      * @param  image  The image to be changed by this filter.
      */
     public abstract void apply(OFImage image);
+
+
+	public abstract OFImage applyReturn(OFImage image);
+		
+
 }

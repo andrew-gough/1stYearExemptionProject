@@ -104,4 +104,8 @@ public class SmoothFilter extends Filter
         }
         return total / pixels.size();
     }
+    
+    public OFImage applyReturn(OFImage image){
+    return image;
+    }
 }

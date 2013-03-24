@@ -28,6 +28,7 @@ public class MirrorFilter extends Filter
     {
         int height = image.getHeight();
         int width = image.getWidth();
+        if (height > width){
         for(int y = 0; y < height; y++) {
             for(int x = 0; x < width / 2; x++) {
                 Color left = image.getPixel(x, y);
@@ -35,5 +36,10 @@ public class MirrorFilter extends Filter
                 image.setPixel(width - 1 - x, y, left);
             }
         }
+        }
+        
+    }
+    public OFImage applyReturn(OFImage image){
+    return image;
     }
 }

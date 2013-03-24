@@ -44,4 +44,8 @@ public class ThresholdFilter extends Filter
             }
         }
     }
+    
+    public OFImage applyReturn(OFImage image){
+    return image;
+    }
 }

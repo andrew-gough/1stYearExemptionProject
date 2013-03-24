@@ -47,5 +47,9 @@ public class SolarizeFilter extends Filter
             }
         }
     }
+    
+    public OFImage applyReturn(OFImage image){
+    return image;
+    }
 
 }

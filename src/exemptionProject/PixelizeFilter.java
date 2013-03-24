@@ -43,4 +43,8 @@ public class PixelizeFilter extends Filter
             }
         }
     }
+    
+    public OFImage applyReturn(OFImage image){
+    return image;
+    }
 }
