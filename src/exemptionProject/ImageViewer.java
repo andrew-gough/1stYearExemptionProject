@@ -63,15 +63,11 @@ public class ImageViewer
 	 */
 
 	private void addUndo(OFImage Image){
-		//addRedo();
 		undoFunction.add(Image);
 	}
 
 	private void addUndo(){
-		//addRedo();
-		OFImage newUndo = new OFImage(currentImage.getWidth(),currentImage.getHeight());
-		newUndo = currentImage;
-		undoFunction.add(newUndo);
+		undoFunction.add(currentImage);
 	}
 
 
@@ -80,11 +76,8 @@ public class ImageViewer
 	 */
 	private boolean doUndo(){
 		if (undoFunction.size() > 0){
-			System.out.println(undoFunction.size());
-			System.out.println("Old : " + currentImage.toString());
+			addRedo(currentImage);
 			currentImage = undoFunction.get(undoFunction.size() - 1);
-			System.out.println(undoFunction.size());
-			System.out.println("New : " + currentImage.toString());
 			undoFunction.remove(undoFunction.size() - 1);
 			imagePanel.setImage(currentImage);
 			frame.repaint();
@@ -104,13 +97,13 @@ public class ImageViewer
 	 * Add current image to Redo ArrayList
 	 */
 
-	private void addRedo(){
-		redoFunction.add(currentImage);
+	private void addRedo(OFImage Image){
+		redoFunction.add(Image);
 	}
 
 	private boolean doRedo(){
-		System.out.println(redoFunction.size());
 		if (redoFunction.size() > 0){
+			addUndo();
 			currentImage = redoFunction.get(redoFunction.size() - 1);
 			imagePanel.setImage(currentImage);
 			redoFunction.remove(redoFunction.size() - 1);
@@ -123,6 +116,10 @@ public class ImageViewer
 			showStatus("Redo Unsuccessful - Nothing to Redo");
 			return false;
 		}
+	}
+	
+	private void resetRedo(){
+		redoFunction.clear();
 	}
 
 
@@ -200,7 +197,7 @@ public class ImageViewer
 	 */
 	private void applyFilter(Filter filter)
 	{
-
+		resetRedo();
 		addUndo(OFImage.getCopy(currentImage));
 		if(currentImage != null) {
 			filter.apply(currentImage);
@@ -229,6 +226,7 @@ public class ImageViewer
 	 */
 	private void makeLarger()
 	{
+		resetRedo();
 		addUndo();
 		if(currentImage != null) {
 			// create new image with double size
@@ -259,6 +257,7 @@ public class ImageViewer
 	 */
 	private void makeSmaller()
 	{
+		resetRedo();
 		addUndo();
 		if(currentImage != null) {
 			// create new image with double size
