@@ -1,6 +1,7 @@
 package exemptionProject;
 
 import java.awt.*;
+
 import javax.swing.*;
 import java.awt.image.*;
 
@@ -29,9 +30,15 @@ public class ImagePanel extends JComponent
     {
         width = 360;    // arbitrary size for empty panel
         height = 240;
-        panelImage = null;
+        panelImage = null;    
     }
 
+    public ImagePanel(int Width, int Height, OFImage Image)
+    {
+        width = Width;
+        height = Height;
+        panelImage = Image;    
+    }
     /**
      * Set the image that this panel should show.
      * 
@@ -62,6 +69,7 @@ public class ImagePanel extends JComponent
     	System.out.println("No Image To Be Cleared");	
     	}
     	}
+    
     
     // The following methods are redefinitions of methods
     // inherited from superclasses.

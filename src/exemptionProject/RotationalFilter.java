@@ -1,7 +1,4 @@
 package exemptionProject;
-import java.awt.*;
-import java.awt.Image.*;
-import java.awt.geom.*;
 import javax.swing.*;
 public class RotationalFilter extends Filter {
 

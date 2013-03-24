@@ -28,6 +28,7 @@ public class ImageViewer implements WindowListener
 	private static JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
 
 	// own fields:
+	private CropFilter crop;
 	private ArrayList<OFImage> undoFunction ;
 	private ArrayList<OFImage> redoFunction ;
 	private File selectedFile;
@@ -49,6 +50,7 @@ public class ImageViewer implements WindowListener
 	public ImageViewer() 
 	{
 
+		crop = new CropFilter();
 		undoFunction = new ArrayList<OFImage>();
 		redoFunction = new ArrayList<OFImage>();
 		currentImage = null;
@@ -241,7 +243,7 @@ public class ImageViewer implements WindowListener
 		resetRedo();
 		addUndo(OFImage.getCopy(currentImage));
 		if(currentImage != null) {
-			if (filter.getName() == "Rotate Image"){
+			if ((filter.getName() == "Rotate Image")||(filter.getName() == "Crop")){
 				currentImage = filter.applyReturn(currentImage);
 			}
 			filter.apply(currentImage);
@@ -535,6 +537,19 @@ public class ImageViewer implements WindowListener
 			menu.add(item);
 		}
 
+		// create the added Functions Menu
+		menu = new JMenu("Added");
+		menubar.add(menu);
+		
+		item = new JMenuItem("Crop");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				crop.applyReturn(currentImage);
+			}
+		});
+		menu.add(item);
+		
+		
 		// create the Help menu
 		menu = new JMenu("Help");
 		menubar.add(menu);
