@@ -21,7 +21,7 @@ import java.util.Iterator;
  * @author Michael Kölling and David J. Barnes.
  * @version 3.1
  */
-public class ImageViewer
+public class ImageViewer implements WindowListener
 {
 	// static fields:
 	private static final String VERSION = "Version 3.1.1";
@@ -30,7 +30,7 @@ public class ImageViewer
 	// own fields:
 	private ArrayList<OFImage> undoFunction ;
 	private ArrayList<OFImage> redoFunction ;
-
+	private File selectedFile;
 
 	// fields:
 	private JFrame frame;
@@ -46,8 +46,9 @@ public class ImageViewer
 	/**
 	 * Create an ImageViewer and display its GUI on screen.
 	 */
-	public ImageViewer()
+	public ImageViewer() 
 	{
+
 		undoFunction = new ArrayList<OFImage>();
 		redoFunction = new ArrayList<OFImage>();
 		currentImage = null;
@@ -57,9 +58,40 @@ public class ImageViewer
 	}
 
 	// ---- added functions for exemptionProj ----
+	
+	/**
+	 * Refresh Function - Closes the current file and opens a new instance of the file
+	 * Clearing all undos and redos
+	 */
+	
+	private void refresh(){
+		int selectedValue =JOptionPane.showConfirmDialog(null, "Do you wish to save before refreshing? \n(Refreshing clears all changes)", "Do you wish to save?", 
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				
+		if (selectedValue == JOptionPane.CANCEL_OPTION){
+			return;
+		}
+		
+		if (selectedValue == JOptionPane.YES_OPTION){
+			if (saveAs() == false){
+				JOptionPane.showMessageDialog(null,"Save failed for some reason /n Refresh Failed");
+				return;
+			}
+		}
+		close();
+		resetUndo();
+		resetRedo();
+		currentImage = ImageFileManager.loadImage(selectedFile);
+		imagePanel.setImage(currentImage);
+		setButtonsEnabled(true);
+		showFilename(selectedFile.getPath());
+		showStatus("Refreshed File!");
+		frame.pack();
+	}
 
 	/**
-	 * Add current image to Undo ArrayList
+	 * Add current image to Undo ArrayList - First requires an argument while the second
+	 * uses the currentImage
 	 */
 
 	private void addUndo(OFImage Image){
@@ -91,6 +123,13 @@ public class ImageViewer
 			return false;
 		}
 
+	}
+	/*
+	 * Clears Undo ArrayList
+	 */
+	
+	private void resetUndo(){
+		undoFunction.clear();
 	}
 
 	/**
@@ -136,7 +175,7 @@ public class ImageViewer
 		if(returnVal != JFileChooser.APPROVE_OPTION) {
 			return;  // cancelled
 		}
-		File selectedFile = fileChooser.getSelectedFile();
+		selectedFile = fileChooser.getSelectedFile();
 		currentImage = ImageFileManager.loadImage(selectedFile);
 
 		if(currentImage == null) {   // image file was not a valid image
@@ -167,19 +206,21 @@ public class ImageViewer
 	/**
 	 * Save As function: save the current image to a file.
 	 */
-	private void saveAs()
+	private boolean saveAs()
 	{
 		if(currentImage != null) {
 			int returnVal = fileChooser.showSaveDialog(frame);
 
 			if(returnVal != JFileChooser.APPROVE_OPTION) {
-				return;  // cancelled
+				return false;  // cancelled
 			}
 			File selectedFile = fileChooser.getSelectedFile();
 			ImageFileManager.saveImage(currentImage, selectedFile);
 
 			showFilename(selectedFile.getPath());
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -436,6 +477,14 @@ public class ImageViewer
 		});
 		menu.add(item);
 		menu.addSeparator();
+		
+		item = new JMenuItem("Refresh");
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK));
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { refresh(); }
+		});
+		menu.add(item);
+		menu.addSeparator();
 
 		item = new JMenuItem("Undo");
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, SHORTCUT_MASK));
@@ -491,6 +540,49 @@ public class ImageViewer
 			public void actionPerformed(ActionEvent e) { showAbout(); }
 		});
 		menu.add(item);
+	}
 
+	@Override
+	public void windowActivated(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosed(WindowEvent arg0) {
+		frame.dispose();
+		System.exit(0);
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent arg0) {
+		frame.dispose();
+		System.exit(0);
+		
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowIconified(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowOpened(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }
