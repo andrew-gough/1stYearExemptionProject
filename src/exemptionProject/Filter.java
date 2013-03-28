@@ -5,7 +5,7 @@ package exemptionProject;
  * application. Filters can be applied to OFImages by invoking the apply 
  * method.
  * 
- * @author Michael KÃ¶lling and David J. Barnes.
+ * @author Michael Kölling and David J. Barnes.
  * @version 1.0
  */
 public abstract class Filter
@@ -40,6 +40,6 @@ public abstract class Filter
 
 
 	public abstract OFImage applyReturn(OFImage image);
-		
+
 
 }

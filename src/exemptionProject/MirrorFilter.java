@@ -24,21 +24,37 @@ public class MirrorFilter extends Filter
      * 
      * @param  image  The image to be changed by this filter.
      */
-    public void apply(OFImage image)
-    {
-        int height = image.getHeight();
-        int width = image.getWidth();
-        if (height > width){
-        for(int y = 0; y < height; y++) {
-            for(int x = 0; x < width / 2; x++) {
-                Color left = image.getPixel(x, y);
-                image.setPixel(x, y, image.getPixel(width - 1 - x, y));
-                image.setPixel(width - 1 - x, y, left);
-            }
-        }
-        }
-        
-    }
+	public void apply(OFImage image)
+	{
+		
+		//This code Mirrors Vertically
+//		int height = image.getHeight();
+//		int width = image.getWidth();
+//		if (height > width){
+//			for(int x = 0; x < width; x++) {
+//				for(int y = 0; y < height / 2; y++) {
+//					Color top = image.getPixel(x, y);
+//					image.setPixel(x, y, image.getPixel(x,height - 1 - y));
+//					image.setPixel(x, height - 1 - y, top);
+//				}
+//			}
+//		}
+		
+		//This code Mirrors Horizontally
+		int height = image.getHeight();
+		int width = image.getWidth();
+		if (height > width){
+			for(int y = 0; y < height; y++) {
+				for(int x = 0; x < width / 2; x++) {
+					Color left = image.getPixel(x, y);
+					image.setPixel(x, y, image.getPixel(width - 1 - x, y));
+					image.setPixel(width - 1 - x, y, left);
+				}
+			}
+		}
+		
+	}
+	
     public OFImage applyReturn(OFImage image){
     return image;
     }

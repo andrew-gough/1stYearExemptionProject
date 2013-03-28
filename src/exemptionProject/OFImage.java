@@ -17,8 +17,7 @@ public class OFImage extends BufferedImage
      */
     public OFImage(BufferedImage image)
     {
-         super(image.getColorModel(), image.copyData(null), 
-               image.isAlphaPremultiplied(), null);
+         super(image.getColorModel(), image.copyData(null), image.isAlphaPremultiplied(), null);
     }
 
     /**
@@ -60,6 +59,8 @@ public class OFImage extends BufferedImage
         return new Color(pixel);
     }
     
+
+    
     public static OFImage getCopy(OFImage original)
     {
     int origw = original.getWidth();
@@ -73,7 +74,7 @@ public class OFImage extends BufferedImage
     c.setPixel(x, y, col);
     }
     }
-
     return c;
     }
+    
 }

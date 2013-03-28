@@ -13,6 +13,7 @@ import javax.swing.JSlider;
  */
 public class RangeSlider extends JSlider {
 
+
     /**
      * Constructs a RangeSlider with default minimum and maximum values of 0
      * and 100.
@@ -68,6 +69,10 @@ public class RangeSlider extends JSlider {
     /**
      * Returns the lower value in the range.
      */
+    
+    public int getLowerValue(){
+    	return getValue();
+    }
     @Override
     public int getValue() {
         return super.getValue();
@@ -82,7 +87,7 @@ public class RangeSlider extends JSlider {
         if (oldValue == value) {
             return;
         }
-
+        
         // Compute new value and extent to maintain upper value.
         int oldExtent = getExtent();
         int newValue = Math.min(Math.max(getMinimum(), value), oldValue + oldExtent);

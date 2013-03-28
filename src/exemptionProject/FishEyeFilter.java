@@ -1,6 +1,5 @@
 package exemptionProject;
 
-import java.awt.Color;
 
 /**
  * An image filter to create an effect similar to a fisheye camera lens.

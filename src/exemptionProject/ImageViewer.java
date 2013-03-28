@@ -2,7 +2,6 @@ package exemptionProject;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -10,7 +9,6 @@ import java.io.File;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * ImageViewer is the main class of the image viewer application. It builds and
@@ -18,10 +16,10 @@ import java.util.Iterator;
  * 
  * To start the application, create an object of this class.
  * 
- * @author Michael KÃ¶lling and David J. Barnes.
+ * @author Michael Kölling and David J. Barnes.
  * @version 3.1
  */
-public class ImageViewer implements WindowListener
+public class ImageViewer 
 {
 	// static fields:
 	private static final String VERSION = "Version 3.1.1";
@@ -49,8 +47,7 @@ public class ImageViewer implements WindowListener
 	 */
 	public ImageViewer() 
 	{
-
-		crop = new CropFilter();
+		crop = new CropFilter("Crop", this);
 		undoFunction = new ArrayList<OFImage>();
 		redoFunction = new ArrayList<OFImage>();
 		currentImage = null;
@@ -194,6 +191,26 @@ public class ImageViewer implements WindowListener
 		frame.pack();
 	}
 
+	public void openFile(File input)
+	{
+
+		selectedFile = input;
+		currentImage = ImageFileManager.loadImage(selectedFile);
+
+		if(currentImage == null) {   // image file was not a valid image
+			JOptionPane.showMessageDialog(frame,
+					"The file was not in a recognized image file format.",
+					"Image Load Error",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		imagePanel.setImage(currentImage);
+		setButtonsEnabled(true);
+		showFilename(selectedFile.getPath());
+		showStatus("File loaded.");
+		frame.pack();
+	}
+	
 	/**
 	 * Close function: close the current image.
 	 */
@@ -243,13 +260,18 @@ public class ImageViewer implements WindowListener
 		resetRedo();
 		addUndo(OFImage.getCopy(currentImage));
 		if(currentImage != null) {
-			if ((filter.getName() == "Rotate Image")||(filter.getName() == "Crop")){
+			if ((filter.getName() == "Rotate Image")){
 				currentImage = filter.applyReturn(currentImage);
 			}
 			filter.apply(currentImage);
 			imagePanel.setImage(currentImage);
 			frame.repaint();
+			if(filter.getName() != "Crop"){
 			showStatus("Applied: " + filter.getName());
+			}
+			else{
+				showStatus("Crop Window Opened");
+			}
 		}
 		else {
 			showStatus("No image loaded.");
@@ -384,6 +406,7 @@ public class ImageViewer implements WindowListener
 		filterList.add(new EdgeFilter("Edge Detection"));
 		filterList.add(new FishEyeFilter("Fish Eye"));
 		filterList.add(new RotationalFilter("Rotate Image", "clockwise"));
+		filterList.add(crop);
 
 		return filterList;
 	}
@@ -540,7 +563,7 @@ public class ImageViewer implements WindowListener
 		// create the added Functions Menu
 		menu = new JMenu("Added");
 		menubar.add(menu);
-		
+
 		item = new JMenuItem("Crop");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -548,8 +571,8 @@ public class ImageViewer implements WindowListener
 			}
 		});
 		menu.add(item);
-		
-		
+
+
 		// create the Help menu
 		menu = new JMenu("Help");
 		menubar.add(menu);
@@ -561,47 +584,25 @@ public class ImageViewer implements WindowListener
 		menu.add(item);
 	}
 
-	@Override
-	public void windowActivated(WindowEvent arg0) {
-		// TODO Auto-generated method stub
 
+	public void actionPerformed(ActionEvent e) {
+		if(e.getActionCommand().equals("getCroppedImage")){
+			currentImage = crop.getOutput();
+			imagePanel.setImage(currentImage);
+			frame.repaint();
+			showStatus("Applied: Crop");
+		}
+		if(e.getActionCommand().equals("cropExited")){
+			showStatus("Crop Exited Prematurely");
+			undoFunction.remove(undoFunction.size() - 1);
+		}
+		if(e.getActionCommand().equals("getPreviewCroppedImage")){
+			currentImage = crop.getOutput();
+			imagePanel.setImage(currentImage);
+			frame.repaint();
+			showStatus("Crop Preview:");
+		}
 	}
 
-	@Override
-	public void windowClosed(WindowEvent arg0) {
-		frame.dispose();
-		System.exit(0);
 
-	}
-
-	@Override
-	public void windowClosing(WindowEvent arg0) {
-		frame.dispose();
-		System.exit(0);
-
-	}
-
-	@Override
-	public void windowDeactivated(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowDeiconified(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowIconified(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void windowOpened(WindowEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
 }

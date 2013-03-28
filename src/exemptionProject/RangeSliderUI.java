@@ -181,8 +181,8 @@ class RangeSliderUI extends BasicSliderUI {
         if (slider.getOrientation() == JSlider.HORIZONTAL) {
             // Determine position of selected range by moving from the middle
             // of one thumb to the other.
-            int lowerX = thumbRect.x + (thumbRect.width / 2);
-            int upperX = upperThumbRect.x + (upperThumbRect.width / 2);
+            //int lowerX = thumbRect.x + (thumbRect.width / 2);
+           // int upperX = upperThumbRect.x + (upperThumbRect.width / 2);
             
             // Determine track position.
             int cy = (trackBounds.height / 2) - 2;
@@ -191,12 +191,16 @@ class RangeSliderUI extends BasicSliderUI {
             Color oldColor = g.getColor();
             g.translate(trackBounds.x, trackBounds.y + cy);
             
-            // Draw selected range.
-            g.setColor(rangeColor);
-            for (int y = 0; y <= 3; y++) {
-                g.drawLine(lowerX - trackBounds.x, y, upperX - trackBounds.x, y);
-            }
-
+            /*
+            * Code Omited for no Green Bar
+            *
+            * Draw selected range.
+            *		g.setColor(rangeColor);
+            *			for (int y = 0; y <= 3; y++) {
+            *					g.drawLine(lowerX - trackBounds.x, y, upperX - trackBounds.x, y);
+            *				}
+            */
+            
             // Restore position and color.
             g.translate(-trackBounds.x, -(trackBounds.y + cy));
             g.setColor(oldColor);
