@@ -27,6 +27,7 @@ public class ImageViewer
 
 	// own fields:
 	private CropFilter crop;
+	private SlideshowMain slideshow;
 	private ArrayList<OFImage> undoFunction ;
 	private ArrayList<OFImage> redoFunction ;
 	private File selectedFile;
@@ -47,6 +48,7 @@ public class ImageViewer
 	 */
 	public ImageViewer() 
 	{
+		slideshow = new SlideshowMain();
 		crop = new CropFilter("Crop", this);
 		undoFunction = new ArrayList<OFImage>();
 		redoFunction = new ArrayList<OFImage>();
@@ -567,11 +569,19 @@ public class ImageViewer
 		item = new JMenuItem("Crop");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				crop.applyReturn(currentImage);
+				applyFilter(crop);
 			}
 		});
 		menu.add(item);
 
+		
+		item = new JMenuItem("Slideshow");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				slideshow.makeFrame();
+			}
+		});
+		menu.add(item);
 
 		// create the Help menu
 		menu = new JMenu("Help");
