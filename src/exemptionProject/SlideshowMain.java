@@ -3,6 +3,8 @@ package exemptionProject;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
@@ -10,29 +12,35 @@ import javax.swing.border.EtchedBorder;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
 
 
 public class SlideshowMain implements ActionListener{
-	ArrayList<OFImage> slideshowList = new ArrayList<OFImage>();
-
+	private ArrayList<OFImage> slideshowList = new ArrayList<OFImage>();
+	private ArrayList<File> fileList = new ArrayList<File>(); 
+	private ArrayList<File> randomFileList;
 	//declaring GUI Variables
 
 	private ArrayList<Integer> list;
 	private Timer timer;
 	private int timerLoop;
 	private Random randomGen;
+	private Random randomGen1;
 	private boolean shuffleLooping;
 	private boolean looping;
 
+	private JLabel fileLabel;
 	private JButton back;
 	private JButton add;
 	private JButton remove;
@@ -50,6 +58,11 @@ public class SlideshowMain implements ActionListener{
 
 	public SlideshowMain()
 	{
+		
+		randomGen = new Random();
+		randomGen1 = new Random();
+		randomGen.setSeed(0);
+		randomGen1.setSeed(0);
 		shuffleLooping = false;
 		looping = false;
 		currentIndex = 0;
@@ -67,8 +80,9 @@ public class SlideshowMain implements ActionListener{
 		if(returnVal != JFileChooser.APPROVE_OPTION) {
 			return;  // cancelled
 		}
+		
 		File[] images = chooser.getSelectedFiles();
-
+		fileList.addAll(Arrays.asList(images));
 		int ii = 0;
 		for(int i=0;i<images.length;i++){
 			slideshowList.add(ImageFileManager.loadImage(images[i]));
@@ -80,7 +94,14 @@ public class SlideshowMain implements ActionListener{
 
 	private void selectImage(int number){
 		currentIndex = number;
+		try{
 		currentImage = slideshowList.get(number);
+		setLabel(fileList.get(number).getName());
+		}catch(IndexOutOfBoundsException e){
+			currentImage = slideshowList.get(0);
+			setLabel(fileList.get(0).getName());
+		}
+
 		imagePanel.setImage(currentImage);
 		frame.pack();
 
@@ -91,7 +112,7 @@ public class SlideshowMain implements ActionListener{
 		frame = new JFrame("Slideshow");
 		JPanel contentPane = (JPanel)frame.getContentPane();
 		contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
-
+		
 
 		// Specify the layout manager with nice spacing
 		contentPane.setLayout(new BorderLayout(6, 6));
@@ -99,16 +120,26 @@ public class SlideshowMain implements ActionListener{
 		// Create the image pane in the center
 		imagePanel = new ImagePanel();
 		imagePanel.setBorder(new EtchedBorder());
-		contentPane.add(imagePanel, BorderLayout.NORTH);
+		//contentPane.add(imagePanel, BorderLayout.NORTH);
 
-
+		fileLabel = new JLabel("Please Select a file");
+		//contentPane.add(fileLabel, BorderLayout.NORTH);
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		JPanel topPanel = new JPanel(new GridBagLayout());
+		topPanel.add(fileLabel,c);
+		c.gridy = 1;
+		topPanel.add(imagePanel,c);
+		contentPane.add(topPanel, BorderLayout.NORTH);
+		
 		back = new JButton("Previous Image");
 		back.addActionListener(this);
 
 		add = new JButton("Add Image(s)");
 		add.addActionListener(this);
 
-		remove = new JButton("Remove Image(s)");
+		remove = new JButton("Remove Image(s)"); 
 		remove.addActionListener(this);
 
 		exit = new JButton("Exit Slideshow");
@@ -143,13 +174,21 @@ public class SlideshowMain implements ActionListener{
 
 	}
 
+	
+	private void setLabel(String text){
+		fileLabel.setText(text);
+		fileLabel.setToolTipText(text);
+	}
 
 	private void shuffleFunction(){
 		list = new ArrayList<Integer>();
+		randomFileList = new ArrayList<File>();
 		for (int i = 0; i<slideshowList.size();i++){
 			list.add(i);
+			randomFileList.add(fileList.get(i));
 		}
-		Collections.shuffle(list);
+		Collections.shuffle(list,randomGen);
+		Collections.shuffle(randomFileList,randomGen1);
 		timer = new Timer(2000,this);
 		timer.start();
 	}
@@ -161,14 +200,51 @@ public class SlideshowMain implements ActionListener{
 
 	private void loopInput(){
 		currentImage = slideshowList.get(timerLoop-1);
+		setLabel(fileList.get(timerLoop-1).getName());
 		imagePanel.setImage(currentImage);
 		frame.pack();
 	}
 
 	private void shuffleInput(){
 		currentImage = slideshowList.get(list.get(timerLoop-1));
+		setLabel(randomFileList.get(timerLoop-1).getName());
 		imagePanel.setImage(currentImage);
 		frame.pack();
+	}
+	
+	
+	private void removeFunction(){
+		ArrayList<String> fileNames = new ArrayList<String>();
+		for(int i = 0;i<fileList.size();i++){
+			fileNames.add(fileList.get(i).getName());
+		}
+		
+		String returned = (String)JOptionPane.showInputDialog(frame,"Which Image is to be removed?","Remove from Slideshow",JOptionPane.PLAIN_MESSAGE,null,fileNames.toArray(),null);
+
+		//If a string was returned, say so.
+		System.out.println(returned);
+		if ((returned != null) && (returned.length() > 0)) {
+		    int index = -1;
+		    for(int i = 0; i<fileNames.size();i++){
+		    	if(fileNames.get(i) == returned){
+		    		index = i;
+		    	}
+		    }
+		    try{
+		    if (list != null){
+		    	list.remove(index);
+		    }
+		    fileList.remove(index);
+		    slideshowList.remove(index);
+		    }catch(Exception e){
+		    	System.out.println("Nae clue why it didn't work!");
+		    }
+		    return;
+		}
+
+		//If you're here, the return value was null/empty.
+		System.out.println("Didn't work for some reason, did you enter it correctly?");
+		
 	}
 
 	@Override
@@ -187,7 +263,7 @@ public class SlideshowMain implements ActionListener{
 		}
 
 		if(ae.getSource() == remove){
-
+			removeFunction();
 		}
 
 		if(ae.getSource() == exit){
