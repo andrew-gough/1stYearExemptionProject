@@ -31,8 +31,10 @@ public class ImageViewer
 	private ArrayList<OFImage> undoFunction ;
 	private ArrayList<OFImage> redoFunction ;
 	private File selectedFile;
+	private Dimension screenSize;
 
 	// fields:
+	private JScrollPane scrollPane;
 	private JFrame frame;
 	private ImagePanel imagePanel;
 	private JLabel filenameLabel;
@@ -48,6 +50,7 @@ public class ImageViewer
 	 */
 	public ImageViewer() 
 	{
+		screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		slideshow = new SlideshowMain();
 		crop = new CropFilter("Crop", this);
 		undoFunction = new ArrayList<OFImage>();
@@ -59,6 +62,13 @@ public class ImageViewer
 	}
 
 	// ---- added functions for exemptionProj ----
+
+	private void checkFrameSize(){
+		if((screenSize.height<frame.getHeight())||(screenSize.width<frame.getWidth())){
+			frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		}
+	}
+
 
 	/**
 	 * Refresh Function - Closes the current file and opens a new instance of the file
@@ -88,6 +98,7 @@ public class ImageViewer
 		showFilename(selectedFile.getPath());
 		showStatus("Refreshed File!");
 		frame.pack();
+		checkFrameSize();
 	}
 
 	/**
@@ -117,6 +128,7 @@ public class ImageViewer
 			setButtonsEnabled(true);
 			showStatus("Undo Successful");
 			frame.pack();
+			checkFrameSize();
 			return true;
 		}else
 		{
@@ -150,6 +162,7 @@ public class ImageViewer
 			setButtonsEnabled(true);
 			showStatus("Redo Successful");
 			frame.pack();
+			checkFrameSize();
 			return true;
 		}else
 		{
@@ -191,6 +204,7 @@ public class ImageViewer
 		showFilename(selectedFile.getPath());
 		showStatus("File loaded.");
 		frame.pack();
+		checkFrameSize();
 	}
 
 	public void openFile(File input)
@@ -211,8 +225,9 @@ public class ImageViewer
 		showFilename(selectedFile.getPath());
 		showStatus("File loaded.");
 		frame.pack();
+		checkFrameSize();
 	}
-	
+
 	/**
 	 * Close function: close the current image.
 	 */
@@ -269,7 +284,7 @@ public class ImageViewer
 			imagePanel.setImage(currentImage);
 			frame.repaint();
 			if(filter.getName() != "Crop"){
-			showStatus("Applied: " + filter.getName());
+				showStatus("Applied: " + filter.getName());
 			}
 			else{
 				showStatus("Crop Window Opened");
@@ -318,6 +333,7 @@ public class ImageViewer
 			currentImage = newImage;
 			imagePanel.setImage(currentImage);
 			frame.pack();
+			checkFrameSize();
 		}
 	}
 
@@ -345,6 +361,7 @@ public class ImageViewer
 			currentImage = newImage;
 			imagePanel.setImage(currentImage);
 			frame.pack();
+			checkFrameSize();
 		}
 	}
 
@@ -429,10 +446,14 @@ public class ImageViewer
 		// Specify the layout manager with nice spacing
 		contentPane.setLayout(new BorderLayout(6, 6));
 
-		// Create the image pane in the center
+		// Create the image pane in the center within a JScrollPane
 		imagePanel = new ImagePanel();
 		imagePanel.setBorder(new EtchedBorder());
-		contentPane.add(imagePanel, BorderLayout.CENTER);
+
+		scrollPane = new JScrollPane(imagePanel);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		contentPane.add(scrollPane, BorderLayout.CENTER);
 
 		// Create two labels at top and bottom for the file name and status messages
 		filenameLabel = new JLabel();
@@ -574,7 +595,7 @@ public class ImageViewer
 		});
 		menu.add(item);
 
-		
+
 		item = new JMenuItem("Slideshow");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
