@@ -26,6 +26,9 @@ public class ImageViewer
 	private static JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
 
 	// own fields:
+
+	private LayerManager layerManager;
+	private String layerName;
 	private CropFilter crop;
 	private SlideshowMain slideshow;
 	private ArrayList<OFImage> undoFunction ;
@@ -50,6 +53,7 @@ public class ImageViewer
 	 */
 	public ImageViewer() 
 	{
+		layerManager = new LayerManager();
 		screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		slideshow = new SlideshowMain();
 		crop = new CropFilter("Crop", this);
@@ -64,6 +68,7 @@ public class ImageViewer
 	// ---- added functions for exemptionProj ----
 
 	private void checkFrameSize(){
+		frame.pack();
 		if((screenSize.height<frame.getHeight())||(screenSize.width<frame.getWidth())){
 			frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		}
@@ -92,8 +97,10 @@ public class ImageViewer
 		close();
 		resetUndo();
 		resetRedo();
+		layerManager.clearAllLayers();
 		currentImage = ImageFileManager.loadImage(selectedFile);
 		imagePanel.setImage(currentImage);
+		layerManager.setFirstLayer(currentImage);
 		setButtonsEnabled(true);
 		showFilename(selectedFile.getPath());
 		showStatus("Refreshed File!");
@@ -157,10 +164,10 @@ public class ImageViewer
 		if (redoFunction.size() > 0){
 			addUndo();
 			currentImage = redoFunction.get(redoFunction.size() - 1);
-			imagePanel.setImage(currentImage);
 			redoFunction.remove(redoFunction.size() - 1);
 			setButtonsEnabled(true);
 			showStatus("Redo Successful");
+			imagePanel.setImage(currentImage);
 			frame.pack();
 			checkFrameSize();
 			return true;
@@ -200,6 +207,8 @@ public class ImageViewer
 			return;
 		}
 		imagePanel.setImage(currentImage);
+		layerName = "Opened Image";
+		layerManager.setFirstLayer(currentImage);
 		setButtonsEnabled(true);
 		showFilename(selectedFile.getPath());
 		showStatus("File loaded.");
@@ -221,6 +230,7 @@ public class ImageViewer
 			return;
 		}
 		imagePanel.setImage(currentImage);
+		layerManager.setFirstLayer(currentImage);
 		setButtonsEnabled(true);
 		showFilename(selectedFile.getPath());
 		showStatus("File loaded.");
@@ -237,6 +247,7 @@ public class ImageViewer
 		imagePanel.clearImage();
 		showFilename(null);
 		setButtonsEnabled(false);
+		layerManager.clearAllLayers();
 	}
 
 	/**
@@ -604,6 +615,99 @@ public class ImageViewer
 		});
 		menu.add(item);
 
+		menu = new JMenu("Layers");
+		menubar.add(menu);
+
+		//make a new layer
+		item = new JMenuItem("New Layer");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(layerManager.addNewLayer(JOptionPane.showInputDialog("Please Choose a name for the Layer")));
+			}
+		});
+		menu.add(item);
+
+
+		//import a new layer from a picture file
+		item = new JMenuItem("Import File as new Layer");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try{
+					layerManager.importNewLayer(JOptionPane.showInputDialog("Please Choose a name for the Layer"));
+				}catch(NullPointerException npe){
+					System.out.println("Something went wrong with the import actionListener");
+				}
+			}
+		});
+		menu.add(item);
+		menu.addSeparator();
+
+
+		//code to switch layers
+		item = new JMenuItem("Switch Layer");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Object[] returnedArray = layerManager.getLayerNames().toArray();
+				if(returnedArray.length!=0){
+					String returned = (String)JOptionPane.showInputDialog(null,"Choose a layer to change to:","Change layer",JOptionPane.PLAIN_MESSAGE,null,returnedArray,null);
+					if (returned == layerName){
+						System.out.println("Can't change to the current layer");
+					}
+					
+					if(layerManager.getUndoFunction(returned)==null){
+						System.out.println("That didn't work for some reason, what even?");
+						return;
+					}
+					layerManager.setUndoFunctionLayer(undoFunction,layerName);
+					layerManager.setRedoFunctionLayer(redoFunction,layerName);
+					layerManager.setCurrentImageLayer(currentImage,layerName);
+
+					layerName = returned;
+					undoFunction = layerManager.getUndoFunction(returned);
+					redoFunction = layerManager.getRedoFunction(returned);
+					currentImage = layerManager.getCurrentImage(returned);
+
+					imagePanel.setImage(currentImage);
+					checkFrameSize();
+					
+					showStatus("Image layer changed to: "+returned);
+
+				}
+				else{
+					JOptionPane.showMessageDialog(null, "No Layers were found.", "No Layers Found", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		menu.add(item);
+		menu.addSeparator();
+
+		//import a new layer from a picture file
+		item = new JMenuItem("Rename Layer");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try{
+					Object[] returnedArray = layerManager.getLayerNames().toArray();
+					if(returnedArray.length!=0){
+						String returned = (String)JOptionPane.showInputDialog(null,"Choose a layer to rename:","Rename layer",JOptionPane.PLAIN_MESSAGE,null,returnedArray,null);
+						String newName = JOptionPane.showInputDialog("Please Choose a name for the Layer");
+						layerManager.renameLayerIndex(newName, returned);
+						if (returned == layerName){
+							layerName = newName;
+						}
+					}
+					else{
+						JOptionPane.showMessageDialog(null, "No Layers were found.", "No Layers Found", JOptionPane.ERROR_MESSAGE);
+					}			
+				}catch(Exception ex){
+					System.out.println("Something went wrong with renaming the Layer");
+				}
+			}
+		});
+		menu.add(item);
+
+
+
+
 		// create the Help menu
 		menu = new JMenu("Help");
 		menubar.add(menu);
@@ -634,6 +738,4 @@ public class ImageViewer
 			showStatus("Crop Preview:");
 		}
 	}
-
-
 }

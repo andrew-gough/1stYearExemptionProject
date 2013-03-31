@@ -219,6 +219,7 @@ public class SlideshowMain implements ActionListener{
 			fileNames.add(fileList.get(i).getName());
 		}
 		
+		
 		String returned = (String)JOptionPane.showInputDialog(frame,"Which Image is to be removed?","Remove from Slideshow",JOptionPane.PLAIN_MESSAGE,null,fileNames.toArray(),null);
 
 		//If a string was returned, say so.
