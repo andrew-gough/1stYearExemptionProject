@@ -27,8 +27,8 @@ import java.util.Random;
 
 
 public class SlideshowMain implements ActionListener{
-	private ArrayList<OFImage> slideshowList = new ArrayList<OFImage>();
-	private ArrayList<File> fileList = new ArrayList<File>(); 
+	private ArrayList<OFImage> slideshowList;
+	private ArrayList<File> fileList;
 	private ArrayList<File> randomFileList;
 	//declaring GUI Variables
 
@@ -58,11 +58,13 @@ public class SlideshowMain implements ActionListener{
 
 	public SlideshowMain()
 	{
-		
+		slideshowList = new ArrayList<OFImage>();
+		fileList = new ArrayList<File>(); 
+		long time = System.currentTimeMillis(); // gets a unique number to use as a seed for the random gens
 		randomGen = new Random();
 		randomGen1 = new Random();
-		randomGen.setSeed(0);
-		randomGen1.setSeed(0);
+		randomGen.setSeed(time);
+		randomGen1.setSeed(time);
 		shuffleLooping = false;
 		looping = false;
 		currentIndex = 0;
@@ -83,10 +85,8 @@ public class SlideshowMain implements ActionListener{
 		
 		File[] images = chooser.getSelectedFiles();
 		fileList.addAll(Arrays.asList(images));
-		int ii = 0;
 		for(int i=0;i<images.length;i++){
 			slideshowList.add(ImageFileManager.loadImage(images[i]));
-			ii =+ ii;
 		}
 
 		selectImage(0);

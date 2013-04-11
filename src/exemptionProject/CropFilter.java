@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 import javax.swing.event.*;
 
 import javax.swing.JButton;
@@ -16,10 +17,12 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
+import rangeSlider.RangeSlider;
+
 public class CropFilter extends Filter implements ActionListener , ChangeListener {
 
 	private ImageViewer owner;
-	
+
 	private int horiMin;
 	private int horiMax;
 	private int vertMin;
@@ -43,11 +46,15 @@ public class CropFilter extends Filter implements ActionListener , ChangeListene
 		super(name);
 		owner = mainApp;
 	}
-	
+
 	//Method which gets run;
 	@Override
 	public void apply(OFImage image) {
 		inputImage = image;
+		horiMin = 0;
+		horiMax = 0;
+		vertMin = 0;
+		vertMax = 0;
 		makeFrame(image);
 	}
 
@@ -68,9 +75,9 @@ public class CropFilter extends Filter implements ActionListener , ChangeListene
 		imagePanel = new ImagePanel(Image.getWidth(),Image.getHeight(),Image);
 		imagePanel.setBorder(new EtchedBorder());
 		contentPane.add(imagePanel, BorderLayout.CENTER);
-		horizontalSlider = new RangeSlider(0,Image.getWidth()+10);
+		horizontalSlider = new RangeSlider(0,Image.getWidth()-1);
 		horizontalSlider.addChangeListener(this);
-		verticalSlider = new RangeSlider(1,0,Image.getHeight()+10);
+		verticalSlider = new RangeSlider(1,0,Image.getHeight()-1);
 		verticalSlider.addChangeListener(this);
 		contentPane.add(horizontalSlider,BorderLayout.NORTH);
 		contentPane.add(verticalSlider,BorderLayout.EAST);
@@ -85,8 +92,8 @@ public class CropFilter extends Filter implements ActionListener , ChangeListene
 		lowerButtons.add(preview);
 		lowerButtons.add(exit);
 		contentPane.add(lowerButtons,BorderLayout.SOUTH);
-		
-		
+
+
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(d.width/2 - frame.getWidth()/2, d.height/2 - frame.getHeight()/2);
 		frame.setVisible(true);
@@ -98,10 +105,11 @@ public class CropFilter extends Filter implements ActionListener , ChangeListene
 	}
 
 
-	
-	
-	
+
+
+
 	public void crop(){
+		//System.out.println("The width is: " + (horiMax - horiMin) + " The height is: " + (vertMax-vertMin));
 		newImage = new OFImage((horiMax-horiMin),(vertMax-vertMin),OFImage.TYPE_INT_RGB);
 		for(int ii = 0;ii<(vertMax-vertMin);ii++){
 			for(int i = 0;i<(horiMax-horiMin);i++){
@@ -109,25 +117,24 @@ public class CropFilter extends Filter implements ActionListener , ChangeListene
 			}
 		}
 		// for some reason the image is the wrong way up - this method call corrects this
-		horizontalMirror(newImage);
+		horizontalMirror();
 	}
 
-	private void horizontalMirror(OFImage image){
-		int height = image.getHeight();
-		int width = image.getWidth();
-		if (height > width){
-			for(int x = 0; x < width; x++) {
-				for(int y = 0; y < height / 2; y++) {
-					Color top = image.getPixel(x, y);
-					image.setPixel(x, y, image.getPixel(x,height - 1 - y));
-					image.setPixel(x, height - 1 - y, top);
-				}
+	private void horizontalMirror(){
+		int height = newImage.getHeight();
+		int width = newImage.getWidth();
+		for(int x = 0; x < width; x++) {
+			for(int y = 0; y < height / 2; y++) {
+				Color top = newImage.getPixel(x, y);
+				newImage.setPixel(x, y, newImage.getPixel(x,height - 1 - y));
+				newImage.setPixel(x, height - 1 - y, top);
 			}
 		}
 	}
-	
-	
-    
+
+
+
+
 	private void updateWindow(){
 		imagePanel.setImage(displayImage);
 		frame.repaint();
@@ -137,10 +144,10 @@ public class CropFilter extends Filter implements ActionListener , ChangeListene
 
 		displayImage = OFImage.getCopy(inputImage);
 
-		
+
 		for(int i=0;i<displayImage.getHeight();i++ ){
 			displayImage.setPixel(horiMin, i, Color.black);
-			
+
 			displayImage.setPixel(horiMax, i, Color.black);
 
 		}
@@ -154,7 +161,7 @@ public class CropFilter extends Filter implements ActionListener , ChangeListene
 		updateWindow();
 
 	}
-	
+
 
 
 	@Override

@@ -2,17 +2,14 @@ package exemptionProject;
 import javax.swing.*;
 public class RotationalFilter extends Filter {
 
-	String direction = null;
-
 
 	/**
 	 * Constructor for objects of class RotationalFilter.
 	 * @param name The name of the filter.
 	 */
-	public RotationalFilter(String name, String rotatingDirection)
+	public RotationalFilter(String name)
 	{
 		super(name);
-		direction = rotatingDirection;
 	}
 
 	@Override
@@ -41,6 +38,8 @@ public class RotationalFilter extends Filter {
 
 		// Clockwise 90 degrees
 		if(returnVal == 0){
+			
+			
 		if (height > width){
 			for(int i=0; i<width; i++)
 				for(int j=0; j<height; j++)

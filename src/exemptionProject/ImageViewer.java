@@ -26,7 +26,7 @@ public class ImageViewer
 	private static JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
 
 	// own fields:
-
+	private PaintFilter paintFilter;
 	private LayerManager layerManager;
 	private String layerName;
 	private CropFilter crop;
@@ -53,6 +53,7 @@ public class ImageViewer
 	 */
 	public ImageViewer() 
 	{
+		paintFilter = new PaintFilter("Paint",this);
 		layerManager = new LayerManager();
 		screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		slideshow = new SlideshowMain();
@@ -243,6 +244,7 @@ public class ImageViewer
 	 */
 	private void close()
 	{
+		resetUndo();
 		currentImage = null;
 		imagePanel.clearImage();
 		showFilename(null);
@@ -294,11 +296,19 @@ public class ImageViewer
 			filter.apply(currentImage);
 			imagePanel.setImage(currentImage);
 			frame.repaint();
-			if(filter.getName() != "Crop"){
-				showStatus("Applied: " + filter.getName());
+			if((filter.getName() == "Crop")||(filter.getName() == "Paint")){
+				
+				if(filter.getName() == "Crop"){
+					showStatus("Crop Window Opened");
+				}
+				
+				if(filter.getName() == "Paint"){
+					showStatus("Paint Window Opened");
+				}
+				
 			}
-			else{
-				showStatus("Crop Window Opened");
+			else{ 
+				showStatus("Applied: " + filter.getName());
 			}
 		}
 		else {
@@ -435,7 +445,7 @@ public class ImageViewer
 		filterList.add(new GrayScaleFilter("Grayscale"));
 		filterList.add(new EdgeFilter("Edge Detection"));
 		filterList.add(new FishEyeFilter("Fish Eye"));
-		filterList.add(new RotationalFilter("Rotate Image", "clockwise"));
+		filterList.add(new RotationalFilter("Rotate Image"));
 		filterList.add(crop);
 
 		return filterList;
@@ -462,8 +472,7 @@ public class ImageViewer
 		imagePanel.setBorder(new EtchedBorder());
 
 		scrollPane = new JScrollPane(imagePanel);
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
 
 		// Create two labels at top and bottom for the file name and status messages
@@ -598,6 +607,15 @@ public class ImageViewer
 		menu = new JMenu("Added");
 		menubar.add(menu);
 
+		item = new JMenuItem("Paint");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				applyFilter(paintFilter);
+			}
+		});
+		menu.add(item);
+
+
 		item = new JMenuItem("Crop");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -653,7 +671,7 @@ public class ImageViewer
 					if (returned == layerName){
 						System.out.println("Can't change to the current layer");
 					}
-					
+
 					if(layerManager.getUndoFunction(returned)==null){
 						System.out.println("That didn't work for some reason, what even?");
 						return;
@@ -669,7 +687,7 @@ public class ImageViewer
 
 					imagePanel.setImage(currentImage);
 					checkFrameSize();
-					
+
 					showStatus("Image layer changed to: "+returned);
 
 				}
@@ -708,6 +726,9 @@ public class ImageViewer
 
 
 
+
+
+
 		// create the Help menu
 		menu = new JMenu("Help");
 		menubar.add(menu);
@@ -728,8 +749,8 @@ public class ImageViewer
 			showStatus("Applied: Crop");
 		}
 		if(e.getActionCommand().equals("cropExited")){
+			doUndo();
 			showStatus("Crop Exited Prematurely");
-			undoFunction.remove(undoFunction.size() - 1);
 		}
 		if(e.getActionCommand().equals("getPreviewCroppedImage")){
 			currentImage = crop.getOutput();
