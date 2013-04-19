@@ -1,5 +1,9 @@
 package exemptionProject;
 
+import javax.swing.*;  
+import java.awt.*;  
+import java.awt.event.*;  
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,6 +20,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JWindow;
 import javax.swing.KeyStroke;
 import javax.swing.border.EtchedBorder;
 
@@ -55,7 +60,6 @@ public class PaintFilter extends Filter implements ActionListener{
 		try{
 			makeFrame();
 			imagePanel.setImage(image);
-			makeColourPalete();
 			return true;
 		}
 		catch(Exception e){
@@ -67,12 +71,16 @@ public class PaintFilter extends Filter implements ActionListener{
 	public void getOutputImage(){
 
 	}
+	
+	public void setCurrentRGB(Color rgb){
+		currentColour = rgb;
+	}
 
 
 
 
 	private void makeColourPalete(){
-		paleteFrame = new JFrame("Colour Palete");
+		paleteFrame = new JFrame();
 		JPanel contentPane = (JPanel)paleteFrame.getContentPane();
 		contentPane.setLayout(new GridLayout(4,2));
 		
@@ -117,11 +125,15 @@ public class PaintFilter extends Filter implements ActionListener{
 		magentaButton.addActionListener(this);
 		contentPane.add(magentaButton);
 		
+		
+		
+		
 		//paleteFrame.setMinimumSize(new Dimension(100,400));
 		paleteFrame.pack();
 		paleteFrame.setMinimumSize(new Dimension(100,200));
 		paleteFrame.setVisible(true);
 		// black, white, red, green, blue, orange, yellow, purple
+		
 
 	}
 
@@ -165,6 +177,7 @@ public class PaintFilter extends Filter implements ActionListener{
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Quit Worked!");
+				paleteFrame.dispose();
 				frame.dispose();
 			}
 		});

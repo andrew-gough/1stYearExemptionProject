@@ -209,6 +209,7 @@ public class ImageViewer
 		}
 		imagePanel.setImage(currentImage);
 		layerName = "Opened Image";
+		layerManager.clearAllLayers();
 		layerManager.setFirstLayer(currentImage);
 		setButtonsEnabled(true);
 		showFilename(selectedFile.getPath());
@@ -231,6 +232,7 @@ public class ImageViewer
 			return;
 		}
 		imagePanel.setImage(currentImage);
+		layerManager.clearAllLayers();
 		layerManager.setFirstLayer(currentImage);
 		setButtonsEnabled(true);
 		showFilename(selectedFile.getPath());
@@ -636,14 +638,7 @@ public class ImageViewer
 		menu = new JMenu("Layers");
 		menubar.add(menu);
 
-		//make a new layer
-		item = new JMenuItem("New Layer");
-		item.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(layerManager.addNewLayer(JOptionPane.showInputDialog("Please Choose a name for the Layer")));
-			}
-		});
-		menu.add(item);
+
 
 
 		//import a new layer from a picture file
@@ -722,7 +717,16 @@ public class ImageViewer
 			}
 		});
 		menu.add(item);
+		menu.addSeparator();
 
+		//Turn all layers into a single layer
+		item = new JMenuItem("Flatten Layers Into Single Image");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+					layerManager.flattenImagesIntoSingleImage("Flattened Image");
+			}
+		});
+		menu.add(item);
 
 
 

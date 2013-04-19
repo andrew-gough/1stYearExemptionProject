@@ -1,5 +1,7 @@
 package exemptionProject;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -22,11 +24,10 @@ public class LayerManager {
 	}
 
 	public boolean addNewLayer(String name){
-		for(int i = 0;i<layerNames.size();i++){
-			if(layerNames.get(i).equals(name)){
+
+		if(layerExist(name)){
 				System.out.println("A Layer already exists with this name, try again!");
-				return false;
-			}
+		return false;
 		}
 		layerNames.add(name);
 		undoFunctionLayer.add(null);
@@ -42,7 +43,6 @@ public class LayerManager {
 				return false;
 			}
 		}
-		layerNames.add(name);
 		
 		JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
 
@@ -61,10 +61,11 @@ public class LayerManager {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		
-		
-		
-		
-		
+		if(!name.isEmpty()){
+			layerNames.add(name);
+		}else{
+			layerNames.add(selectedFile.getName());
+		}
 		
 		undoFunctionLayer.add(new ArrayList<OFImage>());
 		redoFunctionLayer.add(new ArrayList<OFImage>());
@@ -82,6 +83,7 @@ public class LayerManager {
 	//Setting the layer attributes with the layer's name
 	
 	public void setUndoFunctionLayer(ArrayList<OFImage> element, String layer){
+		System.out.println(layer);
 		undoFunctionLayer.set(findIndex(layer), element);
 	}
 	
@@ -159,7 +161,61 @@ public class LayerManager {
 	public ArrayList<String> getLayerNames(){
 		return layerNames;
 	}
+	
+	public void flattenImagesIntoSingleImage(String imageName){
+		OFImage currentImage;
+		int maxX = 0;
+		int maxY = 0;
+		//this section of code gets the biggest Height and the biggest Width
+		for(int i = 0;i<currentImageLayer.size();i++){
+			if(currentImageLayer.get(i).getWidth() > maxX ){
+				maxX = currentImageLayer.get(i).getWidth();
+			}
+			if(currentImageLayer.get(i).getHeight() > maxY ){
+				maxY = currentImageLayer.get(i).getHeight();
+			}
+		}
+		OFImage newImage = new OFImage(maxX,maxY);
+		//this part of code creates a white background for the created image
+		//instead of the default black
+		Graphics2D g = newImage.createGraphics();  
+		g.setColor(Color.WHITE);  
+		g.fillRect(0, 0, newImage.getWidth(), newImage.getHeight());  
+		g.dispose();  
+		
+		for(int index = 0;index<currentImageLayer.size();index++){
+			currentImage = currentImageLayer.get(index);
+			for(int y = 0;y<currentImage.getHeight();y++){
+				for(int x = 0;x<currentImage.getWidth();x++){
+					if(newImage.getPixel(x, y)== Color.WHITE){
+						newImage.setPixel(x, y, currentImage.getPixel(x, y));
+					}
+				}
+			}
+		}
+		int i = 1;
+		while(layerExist("Flattened Image " + i)){
+			i++;
+		}
+		layerNames.add("Flattened Image " + i);
+		System.out.println("Flattened Image "+i);
+		undoFunctionLayer.add(new ArrayList<OFImage>());
+		redoFunctionLayer.add(new ArrayList<OFImage>());
+		currentImageLayer.add(newImage);
+		
+	}
 
+	//Returns true if layer exists - false if it does not
+	
+	private boolean layerExist(String layerName){
+		for(int i = 0;i<layerNames.size();i++){
+			if(layerNames.get(i).equals(layerName)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void clearAllLayers(){
 		undoFunctionLayer.clear();
 		redoFunctionLayer.clear();
