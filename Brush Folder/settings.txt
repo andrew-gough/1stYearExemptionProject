@@ -1,0 +1,21 @@
+#
+#This is the settings file for the paint brushes
+#
+#The following is an example settings file for a brush called brush.bmp
+#With the colour to be selected by the colour palete
+#
+#Name-brush.bmp
+#Colour-palete
+#
+#The following is an example settings file for a brush called brush2.jpeg
+#With the colour to be selected by the native colour of the image
+#
+#Name-brush2.jpeg
+#Colour-native
+#
+Name-AnotherBrush.png
+Colour-palete
+#
+Name-ExampleBrush.png
+Colour-palete
+#

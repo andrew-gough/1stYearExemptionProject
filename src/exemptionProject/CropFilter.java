@@ -98,6 +98,11 @@ public class CropFilter extends Filter implements ActionListener , ChangeListene
 		frame.setLocation(d.width/2 - frame.getWidth()/2, d.height/2 - frame.getHeight()/2);
 		frame.setVisible(true);
 		frame.pack();
+		
+		if((Toolkit.getDefaultToolkit().getScreenSize().height<frame.getHeight())||(Toolkit.getDefaultToolkit().getScreenSize().width<frame.getWidth())){
+			frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		}
+		
 	}
 
 	public OFImage getOutput(){

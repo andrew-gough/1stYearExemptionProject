@@ -762,5 +762,15 @@ public class ImageViewer
 			frame.repaint();
 			showStatus("Crop Preview:");
 		}
+		if(e.getActionCommand().equals("getPaintedImage")){
+			currentImage = paintFilter.getOutput();
+			imagePanel.setImage(currentImage);
+			frame.repaint();
+			showStatus("Applied: Crop");
+		}
+		if(e.getActionCommand().equals("paintExited")){
+			doUndo();
+			showStatus("Paint Exited Prematurely");
+		}
 	}
 }
