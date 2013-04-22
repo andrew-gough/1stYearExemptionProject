@@ -25,7 +25,45 @@ public class BrushManager {
 		brushFolderLocation = new File("Brush Folder");
 		loadBrushFiles();
 	}
+	
+	public int getNumberOfBrushes(){
+		return brushNames.size();
+	}
+	
+	
+	public String getBrushType(int index){
+		return brushTypes.get(index);
+	}
+	
+	public OFImage getBrush(int index){
+		File brushFile = brushFiles.get(index);
+		return ImageFileManager.loadImage(brushFile);
+	}
 
+	public int findIndex(String brushName){
+			int index = -1;
+			for(int i = 0;i<brushNames.size();i++){
+				if(brushNames.get(i).equals(brushName)){
+					index = i;
+				}
+			}
+			if (index == -1){
+				System.out.println("For some reason that String didn't have a corresponding index, whit?");
+			}	
+			return index;
+	}
+	
+	public boolean refresh(){
+		brushFiles.clear();
+		brushNames.clear();
+		brushTypes.clear();
+		return loadBrushFiles();
+	}
+	
+	public ArrayList<String> getBrushNames(){
+		return brushNames;
+	}
+	
 	private boolean loadBrushFiles(){
 		try{
 			boolean foundSettings = false;

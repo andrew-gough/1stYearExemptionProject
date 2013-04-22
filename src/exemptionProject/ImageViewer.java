@@ -232,6 +232,7 @@ public class ImageViewer
 			return;
 		}
 		imagePanel.setImage(currentImage);
+		layerName = "Opened Image";
 		layerManager.clearAllLayers();
 		layerManager.setFirstLayer(currentImage);
 		setButtonsEnabled(true);
@@ -474,6 +475,7 @@ public class ImageViewer
 		imagePanel.setBorder(new EtchedBorder());
 
 		scrollPane = new JScrollPane(imagePanel);
+		scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
 
@@ -638,9 +640,6 @@ public class ImageViewer
 		menu = new JMenu("Layers");
 		menubar.add(menu);
 
-
-
-
 		//import a new layer from a picture file
 		item = new JMenuItem("Import File as new Layer");
 		item.addActionListener(new ActionListener() {
@@ -665,6 +664,7 @@ public class ImageViewer
 					String returned = (String)JOptionPane.showInputDialog(null,"Choose a layer to change to:","Change layer",JOptionPane.PLAIN_MESSAGE,null,returnedArray,null);
 					if (returned == layerName){
 						System.out.println("Can't change to the current layer");
+						return;
 					}
 
 					if(layerManager.getUndoFunction(returned)==null){
@@ -717,16 +717,8 @@ public class ImageViewer
 			}
 		});
 		menu.add(item);
-		menu.addSeparator();
 
-		//Turn all layers into a single layer
-		item = new JMenuItem("Flatten Layers Into Single Image");
-		item.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-					layerManager.flattenImagesIntoSingleImage("Flattened Image");
-			}
-		});
-		menu.add(item);
+
 
 
 

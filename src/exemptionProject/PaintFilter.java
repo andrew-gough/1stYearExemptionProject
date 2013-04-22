@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
@@ -31,7 +32,6 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 	private ImagePanel imagePanel;
 	private JFrame frame;
 	private Color currentColour;
-	private JScrollPane scrollPane;
 	private ImageViewer owner;
 	private OFImage inputImage;
 	private OFImage currentImage;
@@ -69,7 +69,9 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 
 	//Fields for the ImageBrushes
 	private BrushManager brushManager;
-
+	private OFImage currentImageBrush;
+	private String imageType;
+	private int boldestColourMagnetude;
 
 	//Default Constructor
 	public PaintFilter(String Name, ImageViewer ownerInput){
@@ -78,8 +80,11 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 		brushManager = new BrushManager();
 		imagePanel = new ImagePanel();
 		currentColour = Color.black;
-		currentBrush = "Filler";
+		currentBrush = "Paint";
 		brushSize = 10;
+		if(brushManager.getNumberOfBrushes()!= 0){
+			setBrush(0);
+		}
 	}
 
 
@@ -111,6 +116,24 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 		}
 	}
 
+	private void setBrush(int index){
+		currentImageBrush = brushManager.getBrush(index);
+		imageType = brushManager.getBrushType(index);
+		if(imageType.equals("native")){
+			boldestColourMagnetude = 0;
+			int currentMagnetude = 0;
+			for(int i=0;i<currentImageBrush.getWidth();i++){
+				for(int j=0;j<currentImageBrush.getHeight();j++){
+					currentMagnetude = currentImageBrush.getPixel(i,j).getRed()+currentImageBrush.getPixel(i,j).getGreen()+currentImageBrush.getPixel(i,j).getBlue();
+					if(currentMagnetude<boldestColourMagnetude){
+						boldestColourMagnetude = currentMagnetude;
+					}
+				}
+			}
+			boldestColourMagnetude =  765-boldestColourMagnetude;
+		}
+	}
+
 	private void makeSizeAdjustor(){
 		sizeFrame = new JFrame();
 
@@ -129,7 +152,6 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 		contentPane.add(gridPane,BorderLayout.WEST);
 
 		sizeSlider = new JSlider();
-		sizeSlider.setMajorTickSpacing(50);
 		sizeSlider.setMaximum(50);
 		sizeSlider.setMinimum(1);
 		sizeSlider.setValue(brushSize);
@@ -286,6 +308,10 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 				if(currentBrush == "Paint"){
 					applyPaintBrush(p);
 				}
+				if(currentBrush == "ImageBrush"){
+					applyImageBrush(p);
+				}
+
 			}
 
 			if(from == "Click"){
@@ -302,9 +328,11 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 				if(currentBrush == "ColourSelector"){
 					applyPaintSelector(p);
 				}
-
 				if(currentBrush == "Paint"){
 					applyPaintBrush(p);
+				}
+				if(currentBrush == "ImageBrush"){
+					applyImageBrush(p);
 				}
 
 			}
@@ -316,6 +344,41 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 
 		}
 
+	}
+
+	private void applyImageBrush(Point p){
+		if(currentImageBrush == null){
+			System.out.println("You need to select a Brush before using this!");
+			return;
+		}
+		if(imageType.equals("native")){
+			for(int i = p.x - currentImageBrush.getWidth()+1;i<p.x+currentImageBrush.getWidth();i++){
+				for(int j = p.y - currentImageBrush.getHeight()+1;j<p.y+currentImageBrush.getHeight();j++){
+					if(!currentImageBrush.getPixel(Math.abs(i-p.x),Math.abs(j-p.y)).equals(Color.white)){
+						try{
+							//g.fillOval(p.x-(brushSize/2), p.y-(brushSize/2), brushSize,brushSize);	
+							currentImage.setPixel(i-(currentImageBrush.getWidth()/2), j-(currentImageBrush.getHeight()/2), currentImageBrush.getPixel(i-p.x, j-p.y));
+						}catch(Exception e){
+						}
+					}
+				}
+			}
+		}
+		if(imageType.equals("palete")){			
+			int xcoord = p.x-(currentImageBrush.getWidth()/2);
+			int ycoord = p.y-(currentImageBrush.getHeight()/2);
+			for(int i = 0;i<currentImageBrush.getWidth();i++){
+				for(int j = 0;j<currentImageBrush.getHeight();j++){
+					if(!currentImageBrush.getPixel(i,j).equals(Color.white)){
+						try{
+							currentImage.setPixel(i+xcoord,j+ycoord,currentColour);
+						}catch(Exception e){
+						}
+					}
+				}
+			}
+		}
+		refreshImage();
 	}
 
 	private boolean colourClose(Color color1, Color color2, int threshold){
@@ -397,7 +460,7 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 			if (brushSize>1){
 				Graphics2D g = currentImage.createGraphics();
 				g.setColor(currentColour);
-				g.fillOval(p.x, p.y, brushSize,brushSize);	
+				g.fillOval(p.x-(brushSize/2), p.y-(brushSize/2), brushSize,brushSize);	
 			}else{
 				currentImage.setPixel(p.x,p.y,currentColour);
 			}
@@ -418,24 +481,20 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 		}
 	}
 	private void applyEraser(Point p){
+		int radius = brushSize/2;
+
 		try{
-			//			currentImage.setPixel(p.x+1,p.y+1,inputImage.getPixel(p.x+1, p.y+1));
-			//			currentImage.setPixel(p.x, p.y+1, inputImage.getPixel(p.x, p.y+1));
-			//			currentImage.setPixel(p.x-1, p.y+1, inputImage.getPixel(p.x-1, p.y+1));
-			//
-			//			currentImage.setPixel(p.x+1,p.y,inputImage.getPixel(p.x+1, p.y));
-			//			currentImage.setPixel(p.x, p.y, inputImage.getPixel(p.x, p.y));
-			//			currentImage.setPixel(p.x-1, p.y, inputImage.getPixel(p.x-1, p.y));
-			//
-			//			currentImage.setPixel(p.x+1,p.y-1,inputImage.getPixel(p.x+1, p.y-1));
-			//			currentImage.setPixel(p.x, p.y-1, inputImage.getPixel(p.x, p.y-1));
-			//			currentImage.setPixel(p.x-1, p.y-1, inputImage.getPixel(p.x-1, p.y-1));
-			
-			//http://stackoverflow.com/questions/9007977/draw-circle-using-pixels-applied-in-an-image-with-for-loop
-			refreshImage();
+			for (int i = p.x - radius; i < p.x + radius; i++){
+				for (int j = p.y-radius; j <p.y + radius; j++) {
+					if((i<currentImage.getWidth()&&i>=0)||(j<currentImage.getHeight()&&j>=0)){
+						currentImage.setPixel(i, j, inputImage.getPixel(i,j));
+					}
+				}
+			}
 		}catch(java.lang.ArrayIndexOutOfBoundsException ArrayEx){
 			//This happens if the brush strays outside of the boundries, this is fine
 		}
+		refreshImage();
 	}
 
 
@@ -473,6 +532,10 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 					colourSelectorFrame.dispose();
 				}catch(NullPointerException npe){
 					//Again it's fine to be here, just means that the colour frame is already closed 
+				}try{
+					sizeFrame.dispose();
+				}catch(NullPointerException npe){
+					//Again it's fine to be here, just means that the palete frame is already closed 
 				}
 				frame.dispose();
 			}
@@ -547,7 +610,6 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 		menubar.add(menu);
 
 		item = new JMenuItem("Paint Brush");
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK));
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				currentBrush = "Paint";
@@ -556,7 +618,6 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 		menu.add(item);
 
 		item = new JMenuItem("Filler");
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK));
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				currentBrush = "Filler";
@@ -565,7 +626,6 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 		menu.add(item);
 
 		item = new JMenuItem("Colour Sampler");
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK));
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				currentBrush = "ColourSelector";
@@ -573,6 +633,40 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 		});
 		menu.add(item);
 
+		item = new JMenuItem("Image Brush");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				currentBrush = "ImageBrush";
+			}
+		});
+		menu.add(item);
+
+		menu = new JMenu("Image Brush");
+		menubar.add(menu);
+
+		item = new JMenuItem("Refresh Brushes");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				brushManager.refresh();
+			}
+		});
+		menu.add(item);
+
+		item = new JMenuItem("Choose Brush");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String returned;
+				Object[] returnedArray = brushManager.getBrushNames().toArray();
+				if(returnedArray.length!=0){
+					returned = (String)JOptionPane.showInputDialog(null,"Choose a Brush:","Selecting Brush",JOptionPane.PLAIN_MESSAGE,null,returnedArray,null);
+				}else{
+					return;
+				}
+				int index = brushManager.findIndex(returned);
+				setBrush(index);
+			}
+		});
+		menu.add(item);
 	}
 
 	@Override

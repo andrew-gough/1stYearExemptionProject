@@ -12,8 +12,13 @@
 #
 #Name-brush2.jpeg
 #Colour-native
-#
 Name-AnotherBrush.png
+Colour-native
+#
+Name-Brush1.png
+Colour-palete
+#
+Name-Untitled.png
 Colour-palete
 #
 Name-ExampleBrush.png
