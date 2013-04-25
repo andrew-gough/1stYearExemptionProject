@@ -54,9 +54,6 @@ public class BrushManager {
 	}
 	
 	public boolean refresh(){
-		brushFiles.clear();
-		brushNames.clear();
-		brushTypes.clear();
 		return loadBrushFiles();
 	}
 	
@@ -65,6 +62,9 @@ public class BrushManager {
 	}
 	
 	private boolean loadBrushFiles(){
+		brushFiles.clear();
+		brushNames.clear();
+		brushTypes.clear();
 		try{
 			boolean foundSettings = false;
 			if(brushFolderLocation.exists()){

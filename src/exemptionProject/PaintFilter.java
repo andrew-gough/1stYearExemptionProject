@@ -32,6 +32,7 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 	private ImagePanel imagePanel;
 	private JFrame frame;
 	private Color currentColour;
+	private JScrollPane scrollPane;
 	private ImageViewer owner;
 	private OFImage inputImage;
 	private OFImage currentImage;
@@ -126,6 +127,7 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 				for(int j=0;j<currentImageBrush.getHeight();j++){
 					currentMagnetude = currentImageBrush.getPixel(i,j).getRed()+currentImageBrush.getPixel(i,j).getGreen()+currentImageBrush.getPixel(i,j).getBlue();
 					if(currentMagnetude<boldestColourMagnetude){
+
 						boldestColourMagnetude = currentMagnetude;
 					}
 				}
@@ -526,14 +528,17 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 				owner.actionPerformed(new java.awt.event.ActionEvent(this,0,"getPaintedImage"));
 				try{
 					paleteFrame.dispose();
+					paleteFrame = null;
 				}catch(NullPointerException npe){
 					//It's fine to be here, just means that the palete frame is already closed 
 				}try{
 					colourSelectorFrame.dispose();
+					colourSelectorFrame = null;
 				}catch(NullPointerException npe){
 					//Again it's fine to be here, just means that the colour frame is already closed 
 				}try{
 					sizeFrame.dispose();
+					sizeFrame = null;
 				}catch(NullPointerException npe){
 					//Again it's fine to be here, just means that the palete frame is already closed 
 				}
@@ -549,14 +554,17 @@ public class PaintFilter extends Filter implements ChangeListener, MouseListener
 				owner.actionPerformed(new java.awt.event.ActionEvent(this,0,"paintExited"));
 				try{
 					paleteFrame.dispose();
+					paleteFrame = null;
 				}catch(NullPointerException npe){
 					//Again it's fine to be here, just means that the palete frame is already closed 
 				}try{
 					colourSelectorFrame.dispose();
+					colourSelectorFrame = null;
 				}catch(NullPointerException npe){
 					//Again it's fine to be here, just means that the palete frame is already closed 
 				}try{
 					sizeFrame.dispose();
+					sizeFrame = null;
 				}catch(NullPointerException npe){
 					//Again it's fine to be here, just means that the palete frame is already closed 
 				}

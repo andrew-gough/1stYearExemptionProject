@@ -15,12 +15,18 @@
 Name-AnotherBrush.png
 Colour-native
 #
+Name-Arrow.png
+Colour-native
+#
 Name-Brush1.png
 Colour-palete
 #
-Name-Untitled.png
+Name-Star.png
 Colour-palete
 #
-Name-ExampleBrush.png
+Name-Tree Brush.jpg
+Colour-native
+#
+Name-Untitled.png
 Colour-palete
 #

@@ -26,6 +26,7 @@ public class ImageViewer
 	private static JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
 
 	// own fields:
+	private RotationalFilter rotationalFilter;
 	private PaintFilter paintFilter;
 	private LayerManager layerManager;
 	private String layerName;
@@ -53,6 +54,7 @@ public class ImageViewer
 	 */
 	public ImageViewer() 
 	{
+		rotationalFilter = new RotationalFilter("Rotate Image");
 		paintFilter = new PaintFilter("Paint",this);
 		layerManager = new LayerManager();
 		screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -119,7 +121,7 @@ public class ImageViewer
 	}
 
 	private void addUndo(){
-		undoFunction.add(currentImage);
+		addUndo(currentImage);
 	}
 
 
@@ -317,6 +319,7 @@ public class ImageViewer
 		else {
 			showStatus("No image loaded.");
 		}
+		frame.pack();
 	}
 
 	/**
@@ -448,8 +451,6 @@ public class ImageViewer
 		filterList.add(new GrayScaleFilter("Grayscale"));
 		filterList.add(new EdgeFilter("Edge Detection"));
 		filterList.add(new FishEyeFilter("Fish Eye"));
-		filterList.add(new RotationalFilter("Rotate Image"));
-		filterList.add(crop);
 
 		return filterList;
 	}
@@ -618,6 +619,14 @@ public class ImageViewer
 			}
 		});
 		menu.add(item);
+		
+		item = new JMenuItem("Rotate Image");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				applyFilter(rotationalFilter);
+			}
+		});
+		menu.add(item);
 
 
 		item = new JMenuItem("Crop");
@@ -640,12 +649,19 @@ public class ImageViewer
 		menu = new JMenu("Layers");
 		menubar.add(menu);
 
+
+
+
 		//import a new layer from a picture file
 		item = new JMenuItem("Import File as new Layer");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try{
-					layerManager.importNewLayer(JOptionPane.showInputDialog("Please Choose a name for the Layer"));
+					String returned = JOptionPane.showInputDialog("Please Choose a name for the Layer");
+					if(returned.length()==0||returned.equals(null)){
+						return;
+					}
+					layerManager.importNewLayer(returned);
 				}catch(NullPointerException npe){
 					System.out.println("Something went wrong with the import actionListener");
 				}
@@ -664,7 +680,6 @@ public class ImageViewer
 					String returned = (String)JOptionPane.showInputDialog(null,"Choose a layer to change to:","Change layer",JOptionPane.PLAIN_MESSAGE,null,returnedArray,null);
 					if (returned == layerName){
 						System.out.println("Can't change to the current layer");
-						return;
 					}
 
 					if(layerManager.getUndoFunction(returned)==null){
@@ -717,7 +732,6 @@ public class ImageViewer
 			}
 		});
 		menu.add(item);
-
 
 
 

@@ -40,35 +40,24 @@ public class RotationalFilter extends Filter {
 		if(returnVal == 0){
 			
 			
-		if (height > width){
+	
 			for(int i=0; i<width; i++)
 				for(int j=0; j<height; j++)
-					rotated.setRGB(height-1-j, width-1-i, img.getRGB(i, j));	
-		}
-		else
-		{
-			for(int i=0; i<width; i++)
-				for(int j=0; j<height; j++)
-					rotated.setRGB(j, i, img.getRGB(i, j));	
-		}
+					rotated.setRGB(height-1-j, i, img.getRGB(i, j));	
+		
+
 		}
 		
 		
 		//AntiClockwise 90Degrees
 		if (returnVal == 1){
-		if(height > width){
+
 			for(int i=0; i<width; i++)
 				for(int j=0; j<height; j++)
-					rotated.setRGB(j, i, img.getRGB(i, j));
-		}
-		else
-		{
-			for(int i=0; i<width; i++)
-				for(int j=0; j<height; j++)
-					rotated.setRGB(height-1-j, width-1-i, img.getRGB(i, j));	
+					rotated.setRGB(j, width-1-i, img.getRGB(i, j));	
 		}
 
-		}
+		
 		return rotated;
 	
 	}
